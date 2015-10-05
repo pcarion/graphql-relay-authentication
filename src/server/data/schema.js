@@ -11,17 +11,58 @@ import {
   nodeDefinitions
 } from 'graphql-relay';
 
-const example = {
-  id: 1,
-  text: 'Hello World!',
-  version: 2
-};
+import uuid from 'node-uuid';
 
-const user = {
-  id: 17,
-  email: 'pcarion@gmail.com',
-  password: 'xyz123'
+class User {
+  constructor(email, password) {
+    this._id = uuid.v4();
+    this._email = email;
+    this._password = password;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get email() {
+    return this._id;
+  }
 }
+
+class Example {
+  constructor(text, version) {
+    this._id = uuid.v4();
+    this._text = text;
+    this._version = version;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get text() {
+    return this._text;
+  }
+
+  get version() {
+    return this._version;
+  }
+}
+
+
+const example = new Example('Hello World!',3);
+const user = new User('pcarion@gmail.com', 'xyz123');
+
+// let usersDirectory = new Map();
+
+// function getUser(id) {
+//   return usersDirectory.get(id);
+// }
+
+// function createUser(email, password) {
+//   return new User(email, password);
+
+// }
 
 /**
  * The first argument defines the way to resolve an ID to its object.
@@ -29,13 +70,21 @@ const user = {
  */
 var { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
-    let { id, type } = fromGlobalId(globalId);
-    if (type === 'Example')
+    let { _id, type } = fromGlobalId(globalId);
+    if (type === 'Example') {
       return example;
+    } else if (type === 'User') {
+      return user;
+    }
     return null;
   },
   (obj) => {
-    return exampleType;
+    if (obj instanceof User) {
+      return userType;
+    } else if (obj instanceof Example) {
+      return exampleType;
+    }
+    return null;
   }
 );
 
