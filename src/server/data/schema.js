@@ -25,7 +25,7 @@ class User {
   }
 
   get email() {
-    return this._id;
+    return this._email;
   }
 }
 
