@@ -21,4 +21,4 @@ All notable changes to this project will be documented in this file.
 - .gitignore file for this file organization
 
 
-[unreleased]: https://github.com/pcarion/graphql-relay-authentication/compare/compare/0.0.1...HEAD
+[unreleased]: https://github.com/pcarion/graphql-relay-authentication/compare/compare/rel/0.0.1...develop
