@@ -13,8 +13,15 @@ import {
 
 const example = {
   id: 1,
-  text: 'Hello World! id='
+  text: 'Hello World!',
+  version: 2
 };
+
+const user = {
+  id: 17,
+  email: 'pcarion@gmail.com',
+  password: 'xyz123'
+}
 
 /**
  * The first argument defines the way to resolve an ID to its object.
@@ -32,6 +39,22 @@ var { nodeInterface, nodeField } = nodeDefinitions(
   }
 );
 
+var userType = new GraphQLObjectType({
+  name: 'User',
+  fields: () => ({
+    id: globalIdField('User'),
+    email: {
+      type: GraphQLString,
+      description: 'email of the user'
+    },
+    password: {
+      type: GraphQLString,
+      description: 'encoded password'
+    }
+  }),
+  interfaces: [ nodeInterface ]
+});
+
 var exampleType = new GraphQLObjectType({
   name: 'Example',
   fields: () => ({
@@ -39,6 +62,10 @@ var exampleType = new GraphQLObjectType({
     text: {
       type: GraphQLString,
       description: 'Hello World'
+    },
+    version: {
+      type: GraphQLInt,
+      description: 'version'
     }
   }),
   interfaces: [ nodeInterface ]
@@ -51,6 +78,10 @@ var queryType = new GraphQLObjectType({
     example: {
       type: exampleType,
       resolve: () => example
+    },
+    user: {
+      type: userType,
+      resolve: () => user
     }
   })
 });
