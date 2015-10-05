@@ -20,5 +20,4 @@ All notable changes to this project will be documented in this file.
 - prepare CHANGELOG.md file following the format described [here](http://keepachangelog.com/)
 - .gitignore file for this file organization
 
-
-[unreleased]: https://github.com/pcarion/graphql-relay-authentication/compare/compare/rel/0.0.1...develop
+[unreleased]: https://github.com/pcarion/graphql-relay-authentication/compare/rel/0.0.1...develop
