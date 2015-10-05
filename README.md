@@ -13,5 +13,5 @@ This application has the following characteristics:
 [fortruce/relay-skeleton](https://github.com/fortruce/relay-skeleton): skeleton for a React, Relay, GraphQL project. I expect
 to change the structure of the project over time but this skeleton is a very valuable starting point. 
 
-[Keep a CHANGELOG](http://keepachangelog.com/): very intersting initiative by [Olivier Lacan](http://olivierlacan.com/) to formalize 
+[Keep a CHANGELOG](http://keepachangelog.com/): very interesting initiative by [Olivier Lacan](http://olivierlacan.com/) to formalize 
 the way you should write your CHANGELOG.md file. Worth giving it a try.

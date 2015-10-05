@@ -13,7 +13,7 @@ import {
 
 const example = {
   id: 1,
-  text: 'Hello World'
+  text: 'Hello World! id='
 };
 
 /**

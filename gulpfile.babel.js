@@ -1,4 +1,9 @@
 import gulp from 'gulp';
+import sourcemaps from 'gulp-sourcemaps';
+import del  from 'del';
+import babel from 'gulp-babel';
+import concat from 'gulp-concat';
+
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import nodemon from 'nodemon';
@@ -9,7 +14,7 @@ import { graphql } from 'graphql';
 import fs from 'fs';
 
 import configs from './webpack.config';
-const [ frontendConfig, backendConfig ] = configs;
+const [ frontendConfig ] = configs;
 
 let compiler;
 
@@ -29,7 +34,7 @@ function recompile() {
 
 // run the webpack dev server
 //  must generate the schema.json first as compiler relies on it for babel-relay-plugin
-gulp.task('webpack', ['generate-schema'], () => {
+gulp.task('frontend:webpack', ['schema:generate'], () => {
   compiler = webpack(frontendConfig);
   let server = new WebpackDevServer(compiler, {
     contentBase: path.join(__dirname, 'build', 'public'),
@@ -48,26 +53,8 @@ gulp.task('webpack', ['generate-schema'], () => {
   });
 });
 
-// restart the backend server whenever a required file from backend is updated
-gulp.task('backend-watch', () => {
-  return new Promise((resolve, reject) => {
-    let compiled = false;
-    webpack(backendConfig).watch(100, (err, stats) => {
-      if (err)
-        return reject(err);
-      // trigger task completion after first compile
-      if (!compiled) {
-        compiled = true;
-        resolve();
-      } else {
-        nodemon.restart();
-      }
-    });
-  });
-});
-
 // Regenerate the graphql schema and recompile the frontend code that relies on schema.json
-gulp.task('generate-schema', () => {
+gulp.task('schema:generate', () => {
   return graphql(Schema, introspectionQuery)
     .then(result => {
       if (result.errors)
@@ -80,25 +67,48 @@ gulp.task('generate-schema', () => {
     });
 });
 
-// recompile the schema whenever .js files in data are updated
-gulp.task('watch-schema', () => {
-  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['generate-schema']);
+// generate the server using babel
+gulp.task('server:babel', function () {
+  return gulp.src("src/server/**/*.js")
+    .pipe(sourcemaps.init())
+    .pipe(babel())
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("build"));
 });
 
-gulp.task('server', ['backend-watch', 'watch-schema'], () => {
+// recompile the schema whenever .js files in data are updated
+gulp.task('schema:watch', () => {
+  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['schema:generate','server:babel']);
+});
+
+// copy the public directory to the build folder
+gulp.task('public:copy', function () {
+  return gulp
+    .src('src/public/**/*.*', {base: './src'})
+    .pipe(gulp.dest('build'));
+})
+
+gulp.task('public:clean', function () {
+  return del([
+    'build'
+  ]);
+});
+
+gulp.task('server:start', ['server:babel', 'public:copy', 'schema:watch'], () => {
   nodemon({
     execMap: {
       js: 'node'
     },
     script: path.join(__dirname, 'build', 'server.js'),
-    // do not watch any directory/files to refresh
-    // all refreshes should be manual
-    watch: ['foo/'],
-    ext: 'noop',
-    ignore: ['*']
+    watch: ['build/'],
+    ext: 'js'
   }).on('restart', () => {
     console.log('[nodemon]: restart');
   });
 });
 
-gulp.task('default', ['webpack', 'server']);
+gulp.task('frontend', ['frontend:webpack']);
+gulp.task('server', ['server:start']);
+
+gulp.task('default', ['frontend', 'server']);
+
