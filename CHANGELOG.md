@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Remove webpack to generate the server code and replace with babel to generate es5 code
 - Add the `/schema` middleware to get the GraphQL schema
-
+- Add the GraphiQL web interface in the `ql` subdirectory of the server
+- Add gulp tasks to clean and to prepare the build directory
 
 ## Initial import in master - 2015-10-04
 ### Added

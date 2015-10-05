@@ -1,5 +1,6 @@
 import gulp from 'gulp';
 import sourcemaps from 'gulp-sourcemaps';
+import del  from 'del';
 import babel from 'gulp-babel';
 import concat from 'gulp-concat';
 
@@ -80,8 +81,20 @@ gulp.task('watch-schema', () => {
   gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['generate-schema','babel-server']);
 });
 
+// copy the public directory to the build folder
+gulp.task('public:copy', function () {
+  return gulp
+    .src('src/public/**/*.*', {base: './src'})
+    .pipe(gulp.dest('build'));
+})
 
-gulp.task('server', ['babel-server', 'watch-schema'], () => {
+gulp.task('public:clean', function () {
+  return del([
+    'build'
+  ]);
+});
+
+gulp.task('server', ['babel-server', 'public:copy', 'watch-schema'], () => {
   nodemon({
     execMap: {
       js: 'node'
