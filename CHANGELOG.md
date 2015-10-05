@@ -1,6 +1,8 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased][unreleased]
+
 ## 0.0.1 - 2015-10-05
 ### Added
 - Add the `/schema` middleware to get the GraphQL schema
@@ -17,3 +19,6 @@ All notable changes to this project will be documented in this file.
 - README.md file to describe the project and prepare a credit page
 - prepare CHANGELOG.md file following the format described [here](http://keepachangelog.com/)
 - .gitignore file for this file organization
+
+
+[unreleased]: https://github.com/pcarion/graphql-relay-authentication/compare/compare/0.0.1...HEAD
