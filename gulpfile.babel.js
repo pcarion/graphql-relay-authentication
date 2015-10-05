@@ -34,7 +34,7 @@ function recompile() {
 
 // run the webpack dev server
 //  must generate the schema.json first as compiler relies on it for babel-relay-plugin
-gulp.task('webpack', ['generate-schema'], () => {
+gulp.task('frontend:webpack', ['schema:generate'], () => {
   compiler = webpack(frontendConfig);
   let server = new WebpackDevServer(compiler, {
     contentBase: path.join(__dirname, 'build', 'public'),
@@ -54,7 +54,7 @@ gulp.task('webpack', ['generate-schema'], () => {
 });
 
 // Regenerate the graphql schema and recompile the frontend code that relies on schema.json
-gulp.task('generate-schema', () => {
+gulp.task('schema:generate', () => {
   return graphql(Schema, introspectionQuery)
     .then(result => {
       if (result.errors)
@@ -68,7 +68,7 @@ gulp.task('generate-schema', () => {
 });
 
 // generate the server using babel
-gulp.task('babel-server', function () {
+gulp.task('server:babel', function () {
   return gulp.src("src/server/**/*.js")
     .pipe(sourcemaps.init())
     .pipe(babel())
@@ -77,8 +77,8 @@ gulp.task('babel-server', function () {
 });
 
 // recompile the schema whenever .js files in data are updated
-gulp.task('watch-schema', () => {
-  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['generate-schema','babel-server']);
+gulp.task('schema:watch', () => {
+  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['schema:generate','server:babel']);
 });
 
 // copy the public directory to the build folder
@@ -94,7 +94,7 @@ gulp.task('public:clean', function () {
   ]);
 });
 
-gulp.task('server', ['babel-server', 'public:copy', 'watch-schema'], () => {
+gulp.task('server:start', ['server:babel', 'public:copy', 'schema:watch'], () => {
   nodemon({
     execMap: {
       js: 'node'
@@ -107,4 +107,8 @@ gulp.task('server', ['babel-server', 'public:copy', 'watch-schema'], () => {
   });
 });
 
-gulp.task('default', ['webpack', 'server']);
+gulp.task('frontend', ['frontend:webpack']);
+gulp.task('server', ['server:start']);
+
+gulp.task('default', ['frontend', 'server']);
+
