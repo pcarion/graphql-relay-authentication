@@ -1,4 +1,8 @@
 import gulp from 'gulp';
+import sourcemaps from 'gulp-sourcemaps';
+import babel from 'gulp-babel';
+import concat from 'gulp-concat';
+
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import nodemon from 'nodemon';
@@ -9,7 +13,7 @@ import { graphql } from 'graphql';
 import fs from 'fs';
 
 import configs from './webpack.config';
-const [ frontendConfig, backendConfig ] = configs;
+const [ frontendConfig ] = configs;
 
 let compiler;
 
@@ -48,24 +52,6 @@ gulp.task('webpack', ['generate-schema'], () => {
   });
 });
 
-// restart the backend server whenever a required file from backend is updated
-gulp.task('backend-watch', () => {
-  return new Promise((resolve, reject) => {
-    let compiled = false;
-    webpack(backendConfig).watch(100, (err, stats) => {
-      if (err)
-        return reject(err);
-      // trigger task completion after first compile
-      if (!compiled) {
-        compiled = true;
-        resolve();
-      } else {
-        nodemon.restart();
-      }
-    });
-  });
-});
-
 // Regenerate the graphql schema and recompile the frontend code that relies on schema.json
 gulp.task('generate-schema', () => {
   return graphql(Schema, introspectionQuery)
@@ -80,22 +66,29 @@ gulp.task('generate-schema', () => {
     });
 });
 
-// recompile the schema whenever .js files in data are updated
-gulp.task('watch-schema', () => {
-  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['generate-schema']);
+// generate the server using babel
+gulp.task('babel-server', function () {
+  return gulp.src("src/server/**/*.js")
+    .pipe(sourcemaps.init())
+    .pipe(babel())
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("build"));
 });
 
-gulp.task('server', ['backend-watch', 'watch-schema'], () => {
+// recompile the schema whenever .js files in data are updated
+gulp.task('watch-schema', () => {
+  gulp.watch(path.join(__dirname, './src/server/data', '**/*.js'), ['generate-schema','babel-server']);
+});
+
+
+gulp.task('server', ['babel-server', 'watch-schema'], () => {
   nodemon({
     execMap: {
       js: 'node'
     },
     script: path.join(__dirname, 'build', 'server.js'),
-    // do not watch any directory/files to refresh
-    // all refreshes should be manual
-    watch: ['foo/'],
-    ext: 'noop',
-    ignore: ['*']
+    watch: ['build/'],
+    ext: 'js'
   }).on('restart', () => {
     console.log('[nodemon]: restart');
   });
