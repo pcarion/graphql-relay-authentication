@@ -33,5 +33,5 @@
     "plugins": [
     "react"
   ],
-  "extends": "eslint:recommended"
+  "extends": "airbnb"
 }
