@@ -4,9 +4,8 @@ export default class Application extends React.Component {
   render() {
     return (
       <div>
-        text:{ this.props.example.text },
-        version:{ this.props.example.version },
-        id:{ this.props.example.id }
+        email:{ this.props.user.email },
+        id:{ this.props.user.id }
       </div>
     );
   }

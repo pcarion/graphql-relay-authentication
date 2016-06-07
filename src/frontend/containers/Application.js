@@ -6,6 +6,7 @@ export default Relay.createContainer(Application, {
     example: () => Relay.QL`
       fragment on Example {
         text,
+        version,
         id
       }
     `
